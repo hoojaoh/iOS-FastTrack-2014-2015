@@ -9,10 +9,10 @@
 import Foundation
 
 let pathToDocumentsFolder : String = {
-    let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+    let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
     return paths[0]
 }()
 
 let pathToFileInDocumentsFolder = { (fileName : String) -> String in
-    return (pathToDocumentsFolder as NSString).stringByAppendingPathComponent(fileName)
+    return (pathToDocumentsFolder as NSString).appendingPathComponent(fileName)
 }
