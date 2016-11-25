@@ -15,24 +15,24 @@ let globalModel : BCModel = BCModel()
 
 final class BCModel {
    // CloudKit database
-   let publicDB = CKContainer.defaultContainer().publicCloudDatabase
+   let publicDB = CKContainer.default().publicCloudDatabase
    
-   private let archivePath = pathToFileInDocumentsFolder("locations")
-   private var arrayOfLocations = [CLLocation]()
-   private let queue : dispatch_queue_t = dispatch_queue_create("uk.ac.plmouth.bc", DISPATCH_QUEUE_SERIAL)
-   private let archiveKey = "LocationArray"
+   fileprivate let archivePath = pathToFileInDocumentsFolder("locations")
+   fileprivate var arrayOfLocations = [CLLocation]()
+   fileprivate let queue : DispatchQueue = DispatchQueue(label: "uk.ac.plmouth.bc", attributes: [])
+   fileprivate let archiveKey = "LocationArray"
    
    // MARK: Life-cycle
    
     //The constructor is private, so it cannot be instantiated anywhere else
-   private init() {
+   fileprivate init() {
       //Phase 1 has nothing to do
       
       //Call superclass if you subclass
 //      super.init()
       
       //Phase 2 - self is now available
-      if let m = NSKeyedUnarchiver.unarchiveObjectWithFile(self.archivePath) as? [CLLocation] {
+      if let m = NSKeyedUnarchiver.unarchiveObject(withFile: self.archivePath) as? [CLLocation] {
          arrayOfLocations = m
       }
    }
@@ -48,62 +48,62 @@ final class BCModel {
    // Each method invokes a closure on the main thread when completed
    
    /// Save the array to persistant storage (simple method) serialised on a background thread
-   func save(done done : ()->() )
+   func save(done : @escaping ()->() )
    {
       //Save on a background thread - note this is a serial queue, so multiple calls to save will be performed
       //in strict sequence (to avoid races)
-      dispatch_async(queue) {
+      queue.async {
          //Persist data to file
          NSKeyedArchiver.archiveRootObject(self.arrayOfLocations, toFile:self.archivePath)
          //Call back on main thread (posted to main runloop)
-         dispatch_sync(dispatch_get_main_queue(), done)
+         DispatchQueue.main.sync(execute: done)
       }
    }
    
    /// Erase all data (serialised on a background thread)
-   func erase(done done : ()->() ) {
-      dispatch_async(queue) {
+   func erase(done : @escaping ()->() ) {
+      queue.async {
          self.arrayOfLocations.removeAll()
          //Call back on main thread (posted to main runloop)
-         dispatch_sync(dispatch_get_main_queue(), done)
+         DispatchQueue.main.sync(execute: done)
       }
    }
    
    /// Add a record (serialised on a background thread)
-   func addRecord(record : CLLocation, done : ()->() ) {
-      dispatch_async(queue){
+   func addRecord(_ record : CLLocation, done : @escaping ()->() ) {
+      queue.async{
          self.arrayOfLocations.append(record)
          //Call back on main thread (posted to main runloop)
-         dispatch_sync(dispatch_get_main_queue(), done)
+         DispatchQueue.main.sync(execute: done)
       }
    }
    
    /// Add an array of records
-   func addRecords(records : [CLLocation], done : ()->() ) {
-      dispatch_async(queue){
+   func addRecords(_ records : [CLLocation], done : @escaping ()->() ) {
+      queue.async{
          for r in records {
             self.arrayOfLocations.append(r)
          }
          //Call back on main thread (posted to main runloop)
-         dispatch_sync(dispatch_get_main_queue(), done)
+         DispatchQueue.main.sync(execute: done)
       }
    }
    
    /// Thread-safe read access
-   func getArray(done done : (array : [CLLocation]) -> () ) {
+   func getArray(done : @escaping (_ array : [CLLocation]) -> () ) {
       var copyOfArray : [CLLocation]!
-      dispatch_async(queue){
+      queue.async{
          //Call back on main thread (posted to main runloop)
          copyOfArray = self.arrayOfLocations
-         dispatch_sync(dispatch_get_main_queue(), { done(array: copyOfArray) })
+         DispatchQueue.main.sync(execute: { done(copyOfArray) })
       }
    }
    
    /// Query if the container is empty
-   func isEmpty(done done : (isEmpty : Bool) -> () ) {
-      dispatch_async(queue) {
+   func isEmpty(done : @escaping (_ isEmpty : Bool) -> () ) {
+      queue.async {
         let result = self.arrayOfLocations.count == 0 ? true : false
-         dispatch_sync(dispatch_get_main_queue(), { done(isEmpty: result) })
+         DispatchQueue.main.sync(execute: { done(result) })
       }
    }
    
@@ -111,28 +111,28 @@ final class BCModel {
     // MARK: Cloud Kit
     
    /// Upload the array of data to CloudKit
-   func uploadToCloudKit(done : (didSucceed : Bool)->() ) {
+   func uploadToCloudKit(_ done : @escaping (_ didSucceed : Bool)->() ) {
       //Fetch a copy of the array
       getArray() { (array : [CLLocation]) in
          //Back on the main thread
          let record = CKRecord(recordType: "Locations")
-         record.setObject("My Only Route", forKey: "title")
-         record.setObject(array, forKey: "route")
-         self.publicDB.saveRecord(record) { (rec : CKRecord?, err: NSError?) in
+         record.setObject("My Only Route" as CKRecordValue?, forKey: "title")
+         record.setObject(array as CKRecordValue?, forKey: "route")
+         self.publicDB.save(record, completionHandler: { (rec : CKRecord?, err: NSError?) in
             if let _ = err {
-               done(didSucceed: false)
+               done(false)
             } else {
-               done(didSucceed: true)
+               done(true)
             }
-         }
+         } as! (CKRecord?, Error?) -> Void) 
       }
    }
    
    //Delete records from cloudkit
-   func deleteDataFromCloudKit(done : (didSucceed : Bool)->() ) {
+   func deleteDataFromCloudKit(_ done : @escaping (_ didSucceed : Bool)->() ) {
       let p = NSPredicate(format: "title == %@", "My Only Route")
       let query = CKQuery(recordType: "Locations", predicate: p)
-      publicDB.performQuery(query, inZoneWithID: nil) { (results : [CKRecord]?, error : NSError?) in
+      publicDB.perform(query, inZoneWith: nil) { (results : [CKRecord]?, error : NSError?) in
          if let _ = error {
             done(didSucceed: false)
             return
@@ -142,7 +142,7 @@ final class BCModel {
             return
          }
          for r : CKRecord in res {
-            self.publicDB.deleteRecordWithID(r.recordID) { r, err in
+            self.publicDB.delete(withRecordID: r.recordID) { r, err in
                if let _ = err {
                   done(didSucceed: false)
                   return
@@ -150,7 +150,7 @@ final class BCModel {
             }
          }
          done(didSucceed: true)
-      }
+      } as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void
    }
    
 }
