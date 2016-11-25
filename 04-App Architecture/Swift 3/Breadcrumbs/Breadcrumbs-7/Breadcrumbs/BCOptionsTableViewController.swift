@@ -103,28 +103,28 @@ class BCOptionsTableViewController: UITableViewController {
     
     // MARK: - Actions
     
-    @IBAction func doBackgroundUpdateSwitch(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doBackgroundUpdateSwitch(_ sender: AnyObject) {
+        print("\(#function)")
     }
     
-    @IBAction func doHeadingUpSwitch(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doHeadingUpSwitch(_ sender: AnyObject) {
+        print("\(#function)")
     }
     
-    @IBAction func doShowTrafficSwitch(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doShowTrafficSwitch(_ sender: AnyObject) {
+        print("\(#function)")
     }
     
-    @IBAction func doDistanceSliderChanged(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doDistanceSliderChanged(_ sender: AnyObject) {
+        print("\(#function)")
     }
     
-    @IBAction func doGPSPrecisionSliderChanged(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doGPSPrecisionSliderChanged(_ sender: AnyObject) {
+        print("\(#function)")
     }
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
         if indexPath.section == 4 {
             self.delegate?.dismissWithUpdatedOptions()
