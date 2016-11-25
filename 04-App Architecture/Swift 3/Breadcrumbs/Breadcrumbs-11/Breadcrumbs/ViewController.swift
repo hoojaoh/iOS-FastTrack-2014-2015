@@ -13,23 +13,23 @@ import CoreLocation
 class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate, BCOptionsSheetDelegate {
     /// The application state - "where we are in a known sequence"
     enum AppState {
-        case WaitingForViewDidLoad
-        case RequestingAuth
-        case LiveMapNoLogging
-        case LiveMapLogging
+        case waitingForViewDidLoad
+        case requestingAuth
+        case liveMapNoLogging
+        case liveMapLogging
         
         init() {
-            self = .WaitingForViewDidLoad
+            self = .waitingForViewDidLoad
         }
         
     }
     
     /// The type of input (and its value) applied to the state machine
     enum AppStateInputSource {
-        case None
-        case Start
-        case AuthorisationStatus(Bool)
-        case UserWantsToStart(Bool)
+        case none
+        case start
+        case authorisationStatus(Bool)
+        case userWantsToStart(Bool)
     }
     
     // MARK: - Outlets
@@ -51,14 +51,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         //Optimisation of battery
         loc.pausesLocationUpdatesAutomatically = true
-        loc.activityType = CLActivityType.Fitness
+        loc.activityType = CLActivityType.fitness
         loc.allowsBackgroundLocationUpdates = false
         
         return loc
     }()
     
     //Applicaion state
-    private var state : AppState = AppState() {
+    fileprivate var state : AppState = AppState() {
         willSet {
             print("Changing from state \(state) to \(newValue)")
         }
@@ -67,7 +67,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
     }
     
-    private var options : BCOptions = BCOptions() {
+    fileprivate var options : BCOptions = BCOptions() {
         didSet {
             options.updateDefaults()
             BCOptions.commit()
@@ -77,7 +77,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        self.updateStateWithInput(.Start)
+        self.updateStateWithInput(.start)
         
     }
 
@@ -88,16 +88,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     // MARK: - CLLocationManagerDelegate
     
-    func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
-        if status == CLAuthorizationStatus.AuthorizedAlways {
-            self.updateStateWithInput(.AuthorisationStatus(true))
+        if status == CLAuthorizationStatus.authorizedAlways {
+            self.updateStateWithInput(.authorisationStatus(true))
         } else {
-            self.updateStateWithInput(.AuthorisationStatus(false))
+            self.updateStateWithInput(.authorisationStatus(false))
         }
     }
     
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let _ = locations.last else {return}
         
         globalModel.addRecords(locations) {
@@ -106,32 +106,32 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
     
     // MARK: Action and Events
-    @IBAction func doStart(sender: AnyObject) {
-        self.updateStateWithInput(.UserWantsToStart(true))
+    @IBAction func doStart(_ sender: AnyObject) {
+        self.updateStateWithInput(.userWantsToStart(true))
     }
     
-    @IBAction func doStop(sender: AnyObject) {
-        self.updateStateWithInput(.UserWantsToStart(false))
+    @IBAction func doStop(_ sender: AnyObject) {
+        self.updateStateWithInput(.userWantsToStart(false))
         globalModel.save() {
             
         }
     }
     
-    @IBAction func doClear(sender: AnyObject) {
+    @IBAction func doClear(_ sender: AnyObject) {
         globalModel.erase() {
             globalModel.save() {
-                self.updateStateWithInput(.None)
+                self.updateStateWithInput(.none)
             }
         }
     }
     
-    @IBAction func doOptions(sender: AnyObject) {
+    @IBAction func doOptions(_ sender: AnyObject) {
         
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ModalOptions" {
-            if let dstVC = segue.destinationViewController as? BCOptionsTableViewController {
+            if let dstVC = segue.destination as? BCOptionsTableViewController {
                 dstVC.delegate = self
             }
         }
@@ -139,43 +139,43 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     // MARK: State Machine
     //UPDATE STATE
-    func updateStateWithInput(ip : AppStateInputSource)
+    func updateStateWithInput(_ ip : AppStateInputSource)
     {
         var nextState = self.state
         
         switch (self.state) {
-        case .WaitingForViewDidLoad:
-            if case .Start = ip {
-                nextState = .RequestingAuth
+        case .waitingForViewDidLoad:
+            if case .start = ip {
+                nextState = .requestingAuth
             }
             
-        case .RequestingAuth:
-            if case .AuthorisationStatus(let val) = ip where val == true {
-                nextState = .LiveMapNoLogging
+        case .requestingAuth:
+            if case .authorisationStatus(let val) = ip, val == true {
+                nextState = .liveMapNoLogging
             }
 
-        case .LiveMapNoLogging:
+        case .liveMapNoLogging:
             
             //Check for user cancelling permission
-            if case .AuthorisationStatus(let val) = ip where val == false {
-                nextState = .RequestingAuth
+            if case .authorisationStatus(let val) = ip, val == false {
+                nextState = .requestingAuth
             }
             
             //Check for start button
-            else if case .UserWantsToStart(let val) = ip where val == true {
-                nextState = .LiveMapLogging
+            else if case .userWantsToStart(let val) = ip, val == true {
+                nextState = .liveMapLogging
             }
             
-        case .LiveMapLogging:
+        case .liveMapLogging:
             
             //Check for user cancelling permission
-            if case .AuthorisationStatus(let val) = ip where val == false {
-                nextState = .RequestingAuth
+            if case .authorisationStatus(let val) = ip, val == false {
+                nextState = .requestingAuth
             }
             
             //Check for stop button
-            else if case .UserWantsToStart(let val) = ip where val == false {
-                nextState = .LiveMapNoLogging
+            else if case .userWantsToStart(let val) = ip, val == false {
+                nextState = .liveMapNoLogging
             }
         }
         
@@ -186,19 +186,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     func updateOutputWithState() {
         
         switch (self.state) {
-        case .WaitingForViewDidLoad:
+        case .waitingForViewDidLoad:
             break
             
-        case .RequestingAuth:
+        case .requestingAuth:
             locationManager.requestAlwaysAuthorization()
             
             //Set UI into default state until authorised
             
             //Buttons
-            startButton.enabled   = false
-            stopButton.enabled    = false
-            clearButton.enabled   = false
-            optionsButton.enabled = false
+            startButton.isEnabled   = false
+            stopButton.isEnabled    = false
+            clearButton.isEnabled   = false
+            optionsButton.isEnabled = false
             
             //Map defaults (pedantic)
             mapView.delegate = nil
@@ -208,14 +208,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             locationManager.stopUpdatingLocation()
             locationManager.allowsBackgroundLocationUpdates = false
             
-        case .LiveMapNoLogging:
+        case .liveMapNoLogging:
             
             //Buttons for logging
-            startButton.enabled = true
-            stopButton.enabled = false
-            optionsButton.enabled = true
+            startButton.isEnabled = true
+            stopButton.isEnabled = false
+            optionsButton.isEnabled = true
             globalModel.isEmpty() { (empty : Bool) -> () in
-                self.clearButton.enabled = !empty
+                self.clearButton.isEnabled = !empty
             }
             
             //Live Map
@@ -231,16 +231,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             locationManager.stopUpdatingLocation()
             locationManager.stopUpdatingHeading()
             
-        case .LiveMapLogging:
+        case .liveMapLogging:
             //Buttons
-            startButton.enabled   = false
-            stopButton.enabled    = true
-            optionsButton.enabled = true
-            clearButton.enabled = false
+            startButton.isEnabled   = false
+            stopButton.isEnabled    = true
+            optionsButton.isEnabled = true
+            clearButton.isEnabled = false
             
             //Map
             mapView.showsUserLocation = true
-            mapView.userTrackingMode = .Follow
+            mapView.userTrackingMode = .follow
             mapView.showsTraffic = true
             mapView.delegate = self
 
@@ -256,11 +256,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
 
     // MARK: - BCOptionsSheetDelegate
-    func dismissWithUpdatedOptions(updatedOptions : BCOptions?) {
-        self.dismissViewControllerAnimated(true) {
+    func dismissWithUpdatedOptions(_ updatedOptions : BCOptions?) {
+        self.dismiss(animated: true) {
             if let op = updatedOptions {
                 self.options = op
-                dispatch_async(dispatch_get_main_queue()) {
+                DispatchQueue.main.async {
                     self.updateOutputWithState()
                 }
             }
