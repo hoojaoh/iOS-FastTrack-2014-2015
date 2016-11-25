@@ -13,69 +13,69 @@ let globalModel : BCModel = BCModel()
 
 final class BCModel {
     
-    private var arrayOfLocations = [CLLocation]()
-    private let archivePath = pathToFileInDocumentsFolder("locations")
-    private let archiveKey = "LocationArray"
+    fileprivate var arrayOfLocations = [CLLocation]()
+    fileprivate let archivePath = pathToFileInDocumentsFolder("locations")
+    fileprivate let archiveKey = "LocationArray"
     
-    private let queue : dispatch_queue_t = dispatch_queue_create("uk.ac.plymouth.bc", DISPATCH_QUEUE_SERIAL)
+    fileprivate let queue : DispatchQueue = DispatchQueue(label: "uk.ac.plymouth.bc", attributes: [])
     
-    private init() {
+    fileprivate init() {
         //Phase 1 init - nothing to do!
 
         //super.init()
         
         //Phase 2
-        if let m = NSKeyedUnarchiver.unarchiveObjectWithFile(self.archivePath) as? [CLLocation] {
+        if let m = NSKeyedUnarchiver.unarchiveObject(withFile: self.archivePath) as? [CLLocation] {
             arrayOfLocations = m
         }
 
     }
     
     //Asynchronous API
-    func addRecord(record: CLLocation, done: ()->()) {
-        dispatch_async(queue) {
+    func addRecord(_ record: CLLocation, done: @escaping ()->()) {
+        queue.async {
             self.arrayOfLocations.append(record)
-            dispatch_sync(dispatch_get_main_queue(), done)
+            DispatchQueue.main.sync(execute: done)
         }
     }
     
     /// Add an array of records
     // A Swift array of immutable references is also thread safe
-    func addRecords(records : [CLLocation], done : ()->() ) {
-        dispatch_async(queue){
+    func addRecords(_ records : [CLLocation], done : @escaping ()->() ) {
+        queue.async{
             for r in records {
                 self.arrayOfLocations.append(r)
             }
             //Call back on main thread (posted to main runloop)
-            dispatch_sync(dispatch_get_main_queue(), done)
+            DispatchQueue.main.sync(execute: done)
         }
     }
     
     /// Erase all data (serialised on a background thread)
-    func erase(done done : ()->() ) {
-        dispatch_async(queue) {
+    func erase(done : @escaping ()->() ) {
+        queue.async {
             self.arrayOfLocations.removeAll()
             //Call back on main thread (posted to main runloop)
-            dispatch_sync(dispatch_get_main_queue(), done)
+            DispatchQueue.main.sync(execute: done)
         }
     }
 
     // get array
-    func getArray(done done : (array : [CLLocation]) -> () ) {
-        dispatch_async(queue) {
+    func getArray(done : @escaping (_ array : [CLLocation]) -> () ) {
+        queue.async {
             let copyOfArray = self.arrayOfLocations
-            dispatch_sync(dispatch_get_main_queue()) {
-                done(array: copyOfArray)
+            DispatchQueue.main.sync {
+                done(copyOfArray)
             }
         }
     }
     
     /// Save the array to persistant storage (simple method) serialised on a background thread
-    func save(done done : ()->() ) {
-        dispatch_async(queue) {
+    func save(done : @escaping ()->() ) {
+        queue.async {
             NSKeyedArchiver.archiveRootObject(self.arrayOfLocations, toFile: self.archivePath)
             //Call back on main thread (posted to main runloop)
-            dispatch_sync(dispatch_get_main_queue(), done)
+            DispatchQueue.main.sync(execute: done)
         }
     }
     

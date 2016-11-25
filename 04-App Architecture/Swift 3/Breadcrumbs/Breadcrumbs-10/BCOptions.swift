@@ -13,37 +13,37 @@ import MapKit
 struct BCOptions {
     
     static let defaultsDictionary : [String : AnyObject] = {
-        let fp = NSBundle.mainBundle().pathForResource("factoryDefaults", ofType: "plist")
+        let fp = Bundle.main.path(forResource: "factoryDefaults", ofType: "plist")
         return NSDictionary(contentsOfFile: fp!) as! [String : AnyObject]
     }()
     
-    static let defaults : NSUserDefaults = {
-        let ud = NSUserDefaults.standardUserDefaults()
-        ud.registerDefaults(BCOptions.defaultsDictionary)
+    static let defaults : UserDefaults = {
+        let ud = UserDefaults.standard
+        ud.register(defaults: BCOptions.defaultsDictionary)
         ud.synchronize()
         return ud
     }()
     
-    lazy var backgroundUpdates : Bool = BCOptions.defaults.boolForKey("backgroundUpdates")
+    lazy var backgroundUpdates : Bool = BCOptions.defaults.bool(forKey: "backgroundUpdates")
     lazy var headingAvailable : Bool  = CLLocationManager.headingAvailable()
     lazy var headingUP : Bool         = {
-        return self.headingAvailable && BCOptions.defaults.boolForKey("headingUP")
+        return self.headingAvailable && BCOptions.defaults.bool(forKey: "headingUP")
     }()
     var userTrackingMode : MKUserTrackingMode {
         mutating get {
-            return self.headingUP ? .FollowWithHeading : .Follow
+            return self.headingUP ? .followWithHeading : .follow
         }
     }
-    lazy var showTraffic : Bool = BCOptions.defaults.boolForKey("showTraffic")
-    lazy var distanceBetweenMeasurements : Double = BCOptions.defaults.doubleForKey("distanceBetweekMeasurements")
-    lazy var gpsPrecision : Double = BCOptions.defaults.doubleForKey("gpsPrecision")
+    lazy var showTraffic : Bool = BCOptions.defaults.bool(forKey: "showTraffic")
+    lazy var distanceBetweenMeasurements : Double = BCOptions.defaults.double(forKey: "distanceBetweekMeasurements")
+    lazy var gpsPrecision : Double = BCOptions.defaults.double(forKey: "gpsPrecision")
     
     mutating func updateDefaults() {
-        BCOptions.defaults.setBool(backgroundUpdates, forKey: "backgroundUpdates")
-        BCOptions.defaults.setBool(headingUP, forKey: "headingUP")
-        BCOptions.defaults.setBool(showTraffic, forKey: "showTraffic")
-        BCOptions.defaults.setDouble(distanceBetweenMeasurements, forKey: "distanceBetweenMeasurements")
-        BCOptions.defaults.setDouble(gpsPrecision, forKey: "gpsPrecision")
+        BCOptions.defaults.set(backgroundUpdates, forKey: "backgroundUpdates")
+        BCOptions.defaults.set(headingUP, forKey: "headingUP")
+        BCOptions.defaults.set(showTraffic, forKey: "showTraffic")
+        BCOptions.defaults.set(distanceBetweenMeasurements, forKey: "distanceBetweenMeasurements")
+        BCOptions.defaults.set(gpsPrecision, forKey: "gpsPrecision")
     }
     
     static func commit() {

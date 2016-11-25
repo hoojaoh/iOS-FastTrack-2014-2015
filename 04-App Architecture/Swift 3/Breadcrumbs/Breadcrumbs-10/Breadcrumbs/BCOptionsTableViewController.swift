@@ -9,7 +9,7 @@
 import UIKit
 
 protocol BCOptionsSheetDelegate : class {
-    func dismissWithUpdatedOptions(updatedOptions : BCOptions?)
+    func dismissWithUpdatedOptions(_ updatedOptions : BCOptions?)
 }
 
 class BCOptionsTableViewController: UITableViewController {
@@ -50,17 +50,17 @@ class BCOptionsTableViewController: UITableViewController {
     }
     
     func updateUIWithState() {
-        self.backgroundUpdateSwitch.on = self.options.backgroundUpdates
+        self.backgroundUpdateSwitch.isOn = self.options.backgroundUpdates
         if self.options.headingAvailable {
-            self.headingUPSwitch.on = self.options.headingUP
-            self.headingUPSwitch.enabled = true
+            self.headingUPSwitch.isOn = self.options.headingUP
+            self.headingUPSwitch.isEnabled = true
             self.headingUPLabel.alpha = 1.0
         } else {
-            self.headingUPSwitch.on = false
-            self.headingUPSwitch.enabled = false
+            self.headingUPSwitch.isOn = false
+            self.headingUPSwitch.isEnabled = false
             self.headingUPLabel.alpha = 0.2
         }
-        self.showTrafficSwitch.on = self.options.showTraffic
+        self.showTrafficSwitch.isOn = self.options.showTraffic
         self.distanceSlider.value = Float(self.options.distanceBetweenMeasurements)
         self.distanceLabel.text = String(format: "%d", Int(self.options.distanceBetweenMeasurements))
         self.gpsPrecisionSlider.value = Float(self.options.gpsPrecision)
@@ -68,9 +68,9 @@ class BCOptionsTableViewController: UITableViewController {
     }
     
     func updatedateStateFromUI() {
-        self.options.backgroundUpdates = self.backgroundUpdateSwitch.on
-        self.options.headingUP = self.headingUPSwitch.on
-        self.options.showTraffic = self.showTrafficSwitch.on
+        self.options.backgroundUpdates = self.backgroundUpdateSwitch.isOn
+        self.options.headingUP = self.headingUPSwitch.isOn
+        self.options.showTraffic = self.showTrafficSwitch.isOn
         self.options.distanceBetweenMeasurements = Double(self.distanceSlider.value)
         self.options.gpsPrecision = Double(self.gpsPrecisionSlider.value)
     }
@@ -135,35 +135,35 @@ class BCOptionsTableViewController: UITableViewController {
     
     // MARK: - Actions
     
-    @IBAction func doBackgroundUpdateSwitch(sender: AnyObject) {
-        print("\(__FUNCTION__)")
+    @IBAction func doBackgroundUpdateSwitch(_ sender: AnyObject) {
+        print("\(#function)")
         updatedateStateFromUI()
     }
     
-    @IBAction func doHeadingUpSwitch(sender: AnyObject) {
+    @IBAction func doHeadingUpSwitch(_ sender: AnyObject) {
         updatedateStateFromUI()
-        print("\(__FUNCTION__)")
+        print("\(#function)")
     }
     
-    @IBAction func doShowTrafficSwitch(sender: AnyObject) {
+    @IBAction func doShowTrafficSwitch(_ sender: AnyObject) {
         updatedateStateFromUI()
-        print("\(__FUNCTION__)")
+        print("\(#function)")
     }
     
-    @IBAction func doDistanceSliderChanged(sender: AnyObject) {
+    @IBAction func doDistanceSliderChanged(_ sender: AnyObject) {
         self.distanceLabel.text = String(format: "%d", Int(self.distanceSlider.value))
         updatedateStateFromUI()
-        print("\(__FUNCTION__)")
+        print("\(#function)")
     }
     
-    @IBAction func doGPSPrecisionSliderChanged(sender: AnyObject) {
+    @IBAction func doGPSPrecisionSliderChanged(_ sender: AnyObject) {
         self.gpsPrecisionLabel.text = String(format: "%d", Int(self.gpsPrecisionSlider.value))
         updatedateStateFromUI()
-        print("\(__FUNCTION__)")
+        print("\(#function)")
     }
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
         if indexPath.section == 4 {
             if indexPath.row == 0 {
