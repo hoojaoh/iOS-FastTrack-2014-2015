@@ -25,14 +25,14 @@ class ViewController: UIViewController {
     }
 
 
-    @IBAction func doDemo(sender: AnyObject) {
+    @IBAction func doDemo(_ sender: AnyObject) {
         
         //Useful closure to extract the time in a given format
         let time = { (format : String) -> String in
-            let date = NSDate()
-            let formatter = NSDateFormatter()
+            let date = Date()
+            let formatter = DateFormatter()
             formatter.dateFormat = format
-            let desc = formatter.stringFromDate(date)
+            let desc = formatter.string(from: date)
             return desc
         }
         
