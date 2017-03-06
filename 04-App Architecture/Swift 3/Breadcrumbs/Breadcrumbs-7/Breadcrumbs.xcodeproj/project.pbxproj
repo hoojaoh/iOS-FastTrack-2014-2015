@@ -22,7 +22,7 @@
 
 /* Begin PBXFileReference section */
 		070A1EE81C5664F00003FDAF /* factoryDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = factoryDefaults.plist; sourceTree = "<group>"; };
-		070A1EEA1C566D260003FDAF /* BCOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BCOptions.swift; sourceTree = "<group>"; };
+		070A1EEA1C566D260003FDAF /* BCOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BCOptions.swift; path = ../BCOptions.swift; sourceTree = "<group>"; };
 		0755F8131C5279B7006E1EF0 /* BCOptionsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BCOptionsTableViewController.swift; sourceTree = "<group>"; };
 		0755F8181C527DC5006E1EF0 /* BCOptionsTableViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = BCOptionsTableViewController.storyboard; sourceTree = "<group>"; };
 		07BF79AD1C4FD3FA00813481 /* Breadcrumbs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breadcrumbs.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,7 +53,6 @@
 			isa = PBXGroup;
 			children = (
 				070A1EE81C5664F00003FDAF /* factoryDefaults.plist */,
-				070A1EEA1C566D260003FDAF /* BCOptions.swift */,
 				07BF79C41C4FD44400813481 /* CoreLocation.framework */,
 				07BF79C21C4FD42B00813481 /* MapKit.framework */,
 				07BF79AF1C4FD3FA00813481 /* Breadcrumbs */,
@@ -72,6 +71,7 @@
 		07BF79AF1C4FD3FA00813481 /* Breadcrumbs */ = {
 			isa = PBXGroup;
 			children = (
+				070A1EEA1C566D260003FDAF /* BCOptions.swift */,
 				07BF79B41C4FD3FA00813481 /* Main.storyboard */,
 				0755F8181C527DC5006E1EF0 /* BCOptionsTableViewController.storyboard */,
 				07BF79B01C4FD3FA00813481 /* AppDelegate.swift */,

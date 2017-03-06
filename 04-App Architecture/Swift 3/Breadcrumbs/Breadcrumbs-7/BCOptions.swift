@@ -29,6 +29,7 @@ struct BCOptions {
     lazy var headingUP : Bool         = {
         return self.headingAvailable && BCOptions.defaults.bool(forKey: "headingUP")
     }()
+   
     var userTrackingMode : MKUserTrackingMode {
         mutating get {
             return self.headingUP ? .followWithHeading : .follow
@@ -39,11 +40,11 @@ struct BCOptions {
     lazy var gpsPrecision : Double = BCOptions.defaults.double(forKey: "gpsPrecision")
     
     mutating func updateDefaults() {
-        BCOptions.defaults.set(backgroundUpdates, forKey: "backgroundUpdates")
-        BCOptions.defaults.set(headingUP, forKey: "headingUP")
-        BCOptions.defaults.set(showTraffic, forKey: "showTraffic")
+        BCOptions.defaults.set(backgroundUpdates,           forKey: "backgroundUpdates")
+        BCOptions.defaults.set(headingUP,                   forKey: "headingUP")
+        BCOptions.defaults.set(showTraffic,                 forKey: "showTraffic")
         BCOptions.defaults.set(distanceBetweenMeasurements, forKey: "distanceBetweenMeasurements")
-        BCOptions.defaults.set(gpsPrecision, forKey: "gpsPrecision")
+        BCOptions.defaults.set(gpsPrecision,                forKey: "gpsPrecision")
     }
     
     static func commit() {

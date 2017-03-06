@@ -113,7 +113,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
             }
         }
     }
-    
+   
     // MARK: State Machine
     //UPDATE STATE
     func updateStateWithInput(_ ip : AppStateInputSource)
