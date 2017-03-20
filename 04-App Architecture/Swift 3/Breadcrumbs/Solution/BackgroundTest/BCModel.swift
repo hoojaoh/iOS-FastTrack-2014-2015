@@ -16,6 +16,12 @@ let globalModel : BCModel = BCModel()
 final class BCModel {
    // CloudKit database
    let publicDB = CKContainer.default().publicCloudDatabase
+   let privateDB = CKContainer.default().privateCloudDatabase
+   let sharedDB = CKContainer.default().sharedCloudDatabase
+   
+   lazy var cloudKitDB : CKDatabase = {
+      return self.privateDB
+   }()
    
    fileprivate let archivePath = pathToFileInDocumentsFolder("locations")
    fileprivate var arrayOfLocations = [CLLocation]()
@@ -48,7 +54,7 @@ final class BCModel {
    // Each method invokes a closure on the main thread when completed
    
    /// Save the array to persistant storage (simple method) serialised on a background thread
-   func save(done : @escaping ()->() )
+   func save(_ done : @escaping ()->() )
    {
       //Save on a background thread - note this is a serial queue, so multiple calls to save will be performed
       //in strict sequence (to avoid races)
@@ -61,7 +67,7 @@ final class BCModel {
    }
    
    /// Erase all data (serialised on a background thread)
-   func erase(done : @escaping ()->() ) {
+   func erase(_ done : @escaping ()->() ) {
       queue.async {
          self.arrayOfLocations.removeAll()
          //Call back on main thread (posted to main runloop)
@@ -90,7 +96,7 @@ final class BCModel {
    }
    
    /// Thread-safe read access
-   func getArray(done : @escaping (_ array : [CLLocation]) -> () ) {
+   func getArray(_ done : @escaping (_ array : [CLLocation]) -> () ) {
       var copyOfArray : [CLLocation]!
       queue.async{
          //Call back on main thread (posted to main runloop)
@@ -100,7 +106,7 @@ final class BCModel {
    }
    
    /// Query if the container is empty
-   func isEmpty(done : @escaping (_ isEmpty : Bool) -> () ) {
+   func isEmpty(_ done : @escaping (_ isEmpty : Bool) -> () ) {
       queue.async {
         let result = self.arrayOfLocations.count == 0 ? true : false
          DispatchQueue.main.sync(execute: { done(result) })
@@ -118,13 +124,15 @@ final class BCModel {
          let record = CKRecord(recordType: "Locations")
          record.setObject("My Only Route" as CKRecordValue?, forKey: "title")
          record.setObject(array as CKRecordValue?, forKey: "route")
-         self.publicDB.save(record, completionHandler: { (rec : CKRecord?, err: NSError?) in
-            if let _ = err {
+         
+         self.cloudKitDB.save(record) { (rec : CKRecord?, err : Error?) in
+            if let e = err {
+               print(e.localizedDescription)
                done(false)
             } else {
                done(true)
             }
-         } as! (CKRecord?, Error?) -> Void) 
+         }
       }
    }
    
@@ -132,25 +140,26 @@ final class BCModel {
    func deleteDataFromCloudKit(_ done : @escaping (_ didSucceed : Bool)->() ) {
       let p = NSPredicate(format: "title == %@", "My Only Route")
       let query = CKQuery(recordType: "Locations", predicate: p)
-      publicDB.perform(query, inZoneWith: nil) { (results : [CKRecord]?, error : NSError?) in
+      
+      cloudKitDB.perform(query, inZoneWith: nil) { (results : [CKRecord]?, error : Error?) in
          if let _ = error {
-            done(didSucceed: false)
+            done(false)
             return
          }
          guard let res = results else {
-            done(didSucceed: false)
+            done(false)
             return
          }
          for r : CKRecord in res {
-            self.publicDB.delete(withRecordID: r.recordID) { r, err in
+            self.cloudKitDB.delete(withRecordID: r.recordID) { r, err in
                if let _ = err {
-                  done(didSucceed: false)
+                  done(false)
                   return
                }
             }
          }
-         done(didSucceed: true)
-      } as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void as! ([CKRecord]?, Error?) -> Void
+         done(true)
+      }
    }
    
 }

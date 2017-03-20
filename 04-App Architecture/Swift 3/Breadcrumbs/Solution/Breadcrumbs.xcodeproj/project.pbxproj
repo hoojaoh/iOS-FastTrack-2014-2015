@@ -132,7 +132,7 @@
 					078598E21C0C467A00807E6A = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = A5RDWYM8E9;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 0820;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
