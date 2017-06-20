@@ -67,6 +67,7 @@ final class BCModel {
     // get array
     func getArray(done : @escaping (_ array : [CLLocation]) -> () ) {
         queue.async {
+            //Let's make an immutable logical copy (pedantic?)
             let copyOfArray = self.arrayOfLocations
             DispatchQueue.main.sync {
                 done(copyOfArray)
