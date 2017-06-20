@@ -3,7 +3,7 @@
 //  Breadcrumbs
 //
 //  Created by Nicholas Outram on 25/01/2016.
-//  Copyright © 2016 Plymouth University. All rights reserved.
+//  Copyright © 2017 Plymouth University. All rights reserved.
 //
 
 import Foundation
@@ -21,7 +21,7 @@ final class BCModel {
     fileprivate let archiveKey = "LocationArray"
     
     //Default is a SERIAL QUEUE - add parameter atributes: .concurrent to create a concurrent queue
-    fileprivate let queue : DispatchQueue = DispatchQueue(label: "uk.ac.plymouth.bc")
+    fileprivate let queue = DispatchQueue(label: "uk.ac.plymouth.bc")
     
     fileprivate init() {
         //Phase 1 init - nothing to do!
@@ -53,6 +53,7 @@ final class BCModel {
             //Call back on main thread (posted to main runloop)
             DispatchQueue.main.sync(execute: done)
         }
+        
     }
     
     /// Erase all data (serialised on a background thread)
