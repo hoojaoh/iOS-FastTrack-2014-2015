@@ -20,7 +20,8 @@ final class BCModel {
     fileprivate let archivePath = pathToFileInDocumentsFolder("locations")
     fileprivate let archiveKey = "LocationArray"
     
-    fileprivate let queue : DispatchQueue = DispatchQueue(label: "uk.ac.plymouth.bc", attributes: [])
+    //Default is a SERIAL QUEUE - add parameter atributes: .concurrent to create a concurrent queue
+    fileprivate let queue : DispatchQueue = DispatchQueue(label: "uk.ac.plymouth.bc")
     
     fileprivate init() {
         //Phase 1 init - nothing to do!
