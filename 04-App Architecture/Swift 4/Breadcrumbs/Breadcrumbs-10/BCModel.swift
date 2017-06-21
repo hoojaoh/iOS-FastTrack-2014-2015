@@ -85,7 +85,7 @@ final class BCModel {
         queue.async {
             NSKeyedArchiver.archiveRootObject(self.arrayOfLocations, toFile: self.archivePath)
             //Call back on main thread (posted to main runloop)
-            DispatchQueue.main.async(execute: done)
+            DispatchQueue.main.sync(execute: done)
         }
     }
     
