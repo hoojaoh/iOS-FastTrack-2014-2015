@@ -139,7 +139,7 @@ class BreadcrumbsTests: XCTestCase {
         
         globalModel.reload()
         globalModel.getArray { (arr : [CLLocation]) in
-            XCTAssert(arr.count == 10004, "Expecting 1004 samples unarchived - found \(arr.count)")
+            XCTAssert(arr.count == 10004, "Expecting 10004 samples unarchived - found \(arr.count)")
             exp1.fulfill()
         }
         wait(for: [exp1], timeout: 5)
