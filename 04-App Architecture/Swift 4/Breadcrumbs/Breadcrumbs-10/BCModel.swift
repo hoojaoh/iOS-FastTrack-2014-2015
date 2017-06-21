@@ -12,9 +12,6 @@ import CoreLocation
 let globalModel : BCModel = BCModel()
 
 final class BCModel {
-    lazy var fred = {
-        return pathToFileInDocumentsFolder("locations")
-    }
     
     fileprivate var arrayOfLocations = [CLLocation]()
     fileprivate let archivePath = pathToFileInDocumentsFolder("locations")
