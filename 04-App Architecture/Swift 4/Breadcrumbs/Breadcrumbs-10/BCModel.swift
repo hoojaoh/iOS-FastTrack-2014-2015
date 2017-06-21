@@ -23,16 +23,20 @@ final class BCModel {
     //Default is a SERIAL QUEUE - add parameter atributes: .concurrent to create a concurrent queue
     fileprivate let queue = DispatchQueue(label: "uk.ac.plymouth.bc")
     
+    //This exists for testability
+    func reload() {
+        if let m = NSKeyedUnarchiver.unarchiveObject(withFile: self.archivePath) as? [CLLocation] {
+            arrayOfLocations = m
+        }
+    }
+    
     fileprivate init() {
         //Phase 1 init - nothing to do!
 
         //super.init()
         
         //Phase 2
-        if let m = NSKeyedUnarchiver.unarchiveObject(withFile: self.archivePath) as? [CLLocation] {
-            arrayOfLocations = m
-        }
-
+        reload()
     }
     
     //Asynchronous API
@@ -81,7 +85,7 @@ final class BCModel {
         queue.async {
             NSKeyedArchiver.archiveRootObject(self.arrayOfLocations, toFile: self.archivePath)
             //Call back on main thread (posted to main runloop)
-            DispatchQueue.main.sync(execute: done)
+            DispatchQueue.main.async(execute: done)
         }
     }
     
